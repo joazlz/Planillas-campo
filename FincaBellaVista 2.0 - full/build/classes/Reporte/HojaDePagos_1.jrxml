@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="null" language="groovy" pageWidth="595" pageHeight="842" columnWidth="535" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="5266b75a-65fa-4df3-af79-afd35a0b085c">
+	<property name="ireport.zoom" value="1.331000000000001"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<parameter name="Fecha1" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="Fecha2" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="tipo" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT aa.empleado,aa.tipo AS "TIPO EMPLEADO",SUM(aa.dias)AS DIAS,TO_CHAR(SUM(aa.sueldo),'L99G999MI') as salario 
+FROM( 
+    SELECT EMP.NOMBRE_EMPLEADO||' '||EMP.APELLIDO_EMPLEADO AS Empleado,tipo.nombre_tipoEmpleado AS TIPO,count(rac.fecha_actividad ) as Dias,sum(emp.salariodia_empleado) as Sueldo 
+        FROM REGISTRO_ACTIVIDAD RAC     INNER JOIN DETALLE_EMPLEADOS DEMP ON(rac.detalle_empleados = DEMP.CODIGO_DETALLEEMPLEADO) 
+                                        INNER JOIN EMPLEADO EMP ON(demp.CODIGO_EMPLEADO = EMP.CODIGO_EMPLEADO)
+			         INNER JOIN Tipo_Empleado tipo ON(emp.tipo_empleado = tipo.CODIGO_tipoempleado)
+        where TRUNC (rac.fecha_actividad) BETWEEN  TO_DATE ($P{Fecha1}, 'DD/MM/RR') and TO_DATE ($P{Fecha2}, 'DD/MM/RR') 
+and tipo.nombre_tipoEmpleado = $P{tipo}
+        group by EMP.NOMBRE_EMPLEADO||' '||EMP.APELLIDO_EMPLEADO,tipo.nombre_tipoEmpleado
+    UNION ALL 
+    SELECT EMP.NOMBRE_EMPLEADO||' '||EMP.APELLIDO_EMPLEADO AS Empleado,tipo.nombre_tipoEmpleado AS TIPO,count(rac.fecha_actividad ) as Dias, sum((demp.cantidad)*pro.precio_corte/100)  as Sueldo 
+        FROM REGISTRO_ACTIVIDAD RAC     INNER JOIN cosecha DEMP ON(rac.detalle_empleados = DEMP.CODIGO) 
+                                        INNER JOIN EMPLEADO EMP ON(demp.CODIGO_EMPLEADO = EMP.CODIGO_EMPLEADO)
+			         INNER JOIN Tipo_Empleado tipo ON(emp.tipo_empleado = tipo.CODIGO_tipoempleado)
+INNER JOIN PRODUCTO PRO ON(PRO.CODIGO = RAC.CODIGO_PRODUCTO)
+        where TRUNC (rac.fecha_actividad) BETWEEN  TO_DATE ($P{Fecha1}, 'DD/MM/RR') and TO_DATE ($P{Fecha2}, 'DD/MM/RR') 
+and tipo.nombre_tipoEmpleado = $P{tipo}
+            group by EMP.NOMBRE_EMPLEADO||' '||EMP.APELLIDO_EMPLEADO,tipo.nombre_tipoEmpleado
+    )AA 
+GROUP BY aa.empleado,aa.tipo order by 1]]>
+	</queryString>
+	<field name="EMPLEADO" class="java.lang.String"/>
+	<field name="TIPO EMPLEADO" class="java.lang.String"/>
+	<field name="DIAS" class="java.math.BigDecimal"/>
+	<field name="SALARIO" class="java.lang.String"/>
+	<group name="TIPO EMPLEADO">
+		<groupExpression><![CDATA[$F{TIPO EMPLEADO}]]></groupExpression>
+		<groupHeader>
+			<band height="48">
+				<line>
+					<reportElement x="-20" y="0" width="595" height="1" forecolor="#666666" uuid="1dfe1dd1-6b7c-45fa-b78d-0159c1e7f588"/>
+				</line>
+				<staticText>
+					<reportElement mode="Opaque" x="0" y="23" width="286" height="18" forecolor="#006699" backcolor="#E6E6E6" uuid="25f32fb4-4ae7-4bf9-ae06-524114898c4f"/>
+					<textElement textAlignment="Center">
+						<font size="10" isBold="true"/>
+					</textElement>
+					<text><![CDATA[EMPLEADO]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Opaque" x="283" y="23" width="62" height="18" forecolor="#006699" backcolor="#E6E6E6" uuid="b9147549-c7d7-4ce8-9e5e-9dbbe2f7ffd4"/>
+					<textElement textAlignment="Center">
+						<font size="10" isBold="true"/>
+					</textElement>
+					<text><![CDATA[DIAS]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Opaque" x="345" y="23" width="101" height="18" forecolor="#006699" backcolor="#E6E6E6" uuid="49e0d1ab-351d-4402-a645-91f26a0c6482"/>
+					<textElement textAlignment="Center">
+						<font size="10" isBold="true"/>
+					</textElement>
+					<text><![CDATA[SALARIO]]></text>
+				</staticText>
+				<staticText>
+					<reportElement mode="Opaque" x="0" y="5" width="119" height="19" forecolor="#666666" backcolor="#E6E6E6" uuid="88cc26fb-bdab-4957-b1c1-7b6f4bf16dce"/>
+					<textElement verticalAlignment="Middle">
+						<font size="12" isBold="true"/>
+					</textElement>
+					<text><![CDATA[TIPO EMPLEADO: ]]></text>
+				</staticText>
+				<textField>
+					<reportElement mode="Opaque" x="119" y="5" width="436" height="19" forecolor="#006699" backcolor="#E6E6E6" uuid="d46d3f1a-6c15-4f8a-b30f-fb6427afec71"/>
+					<textElement verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$F{TIPO EMPLEADO}]]></textFieldExpression>
+				</textField>
+				<staticText>
+					<reportElement mode="Opaque" x="445" y="23" width="110" height="18" forecolor="#006699" backcolor="#E6E6E6" uuid="6266944b-38f1-4fe7-8746-62fa37f20d1e"/>
+					<textElement textAlignment="Center">
+						<font size="10" isBold="true"/>
+					</textElement>
+					<text><![CDATA[FIRMA / HUELLA]]></text>
+				</staticText>
+			</band>
+		</groupHeader>
+		<groupFooter>
+			<band/>
+		</groupFooter>
+	</group>
+	<background>
+		<band/>
+	</background>
+	<title>
+		<band height="72">
+			<frame>
+				<reportElement mode="Opaque" x="-20" y="-20" width="595" height="92" backcolor="#FFFFFF" uuid="b5bb2a85-647b-4727-ba15-640ae73f1f14"/>
+				<staticText>
+					<reportElement x="20" y="20" width="286" height="43" forecolor="#000000" uuid="7fe32b01-372c-499a-8f61-36e007b2b10a"/>
+					<textElement>
+						<font size="34" isBold="true"/>
+					</textElement>
+					<text><![CDATA[Hoja De Pagos]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="390" y="45" width="22" height="20" forecolor="#000000" backcolor="#006699" uuid="ac90bc69-6f1d-453c-b77a-072977dba002"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[Al:]]></text>
+				</staticText>
+				<staticText>
+					<reportElement x="390" y="12" width="22" height="20" forecolor="#000000" backcolor="#006699" uuid="a9be37ac-abe7-4b43-b8b1-128873aeb502"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font isBold="true"/>
+					</textElement>
+					<text><![CDATA[De:]]></text>
+				</staticText>
+				<textField>
+					<reportElement x="412" y="45" width="100" height="20" forecolor="#000000" backcolor="#006699" uuid="f89dd61a-aedd-427a-b1d4-fe9579c04936"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$P{Fecha2}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement x="412" y="12" width="100" height="20" forecolor="#000000" backcolor="#006699" uuid="1cdea002-868b-4fe7-ae6d-7fd020f6c2f8"/>
+					<textElement textAlignment="Center" verticalAlignment="Middle">
+						<font isBold="true"/>
+					</textElement>
+					<textFieldExpression><![CDATA[$P{Fecha1}]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="6"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="5"/>
+	</columnHeader>
+	<detail>
+		<band height="29">
+			<line>
+				<reportElement positionType="FixRelativeToBottom" x="0" y="19" width="555" height="1" uuid="54f291e4-4769-4762-b066-7b954239e299"/>
+			</line>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="31" y="0" width="255" height="20" uuid="40fd3e29-fe03-40cf-9e03-5dba9ad28dd9"/>
+				<textElement>
+					<font size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{EMPLEADO}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="283" y="0" width="62" height="20" uuid="0a31745a-efa4-483d-917f-84600f42b187"/>
+				<textElement textAlignment="Center">
+					<font size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{DIAS}]]></textFieldExpression>
+			</textField>
+			<textField isStretchWithOverflow="true">
+				<reportElement x="345" y="0" width="101" height="20" uuid="fe872407-4b5b-4ad6-a5ad-4866fc961b11"/>
+				<textElement textAlignment="Center">
+					<font size="14"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$F{SALARIO}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="0" y="0" width="31" height="20" uuid="9eaa5f16-dadf-4a58-82aa-5157732a4826"/>
+				<textElement verticalAlignment="Middle">
+					<font size="8" isBold="true"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$V{REPORT_COUNT}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band/>
+	</columnFooter>
+	<pageFooter>
+		<band height="17">
+			<textField>
+				<reportElement mode="Opaque" x="0" y="4" width="515" height="13" backcolor="#E6E6E6" uuid="f1ab5c1d-a478-453f-bb23-b027d52fd1c6"/>
+				<textElement textAlignment="Right"/>
+				<textFieldExpression><![CDATA["Página "+$V{PAGE_NUMBER}+" de"]]></textFieldExpression>
+			</textField>
+			<textField evaluationTime="Report">
+				<reportElement mode="Opaque" x="515" y="4" width="40" height="13" backcolor="#E6E6E6" uuid="25b37fbb-2cf7-4c81-b999-11bf3ccaee67"/>
+				<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+			</textField>
+			<textField pattern="EEEEE dd MMMMM yyyy">
+				<reportElement x="0" y="4" width="100" height="13" uuid="07889029-5666-48a2-a54a-f21f71cc3ec3"/>
+				<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageFooter>
+	<summary>
+		<band/>
+	</summary>
+</jasperReport>

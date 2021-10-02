@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="null" language="groovy" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="3e27c9fa-64bf-4eef-b65c-edbb618f48ec">
+	<property name="ireport.zoom" value="1.5"/>
+	<property name="ireport.x" value="0"/>
+	<property name="ireport.y" value="0"/>
+	<style name="Title" fontName="Times New Roman" fontSize="50" isBold="true" pdfFontName="Times-Bold"/>
+	<style name="SubTitle" forecolor="#736343" fontName="Arial" fontSize="18"/>
+	<style name="Column header" forecolor="#000000" fontName="Arial" fontSize="12" isBold="true"/>
+	<style name="Detail" fontName="Arial" fontSize="12"/>
+	<style name="Row" mode="Transparent">
+		<conditionalStyle>
+			<conditionExpression><![CDATA[$V{REPORT_COUNT}%2 == 0]]></conditionExpression>
+			<style backcolor="#CCFFCC"/>
+		</conditionalStyle>
+	</style>
+	<parameter name="fecha1" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<parameter name="fecha2" class="java.lang.String">
+		<defaultValueExpression><![CDATA[]]></defaultValueExpression>
+	</parameter>
+	<queryString>
+		<![CDATA[SELECT act.nombre_actividad As "Actividad", ar.nombre_area AS "Area", aa.empleados AS "Jornales" ,aa.costoempleados AS "Costo Empleados", aa.diastrabajados as "Dias Trabajados" 
+FROM(  SELECT RAC.CODIGO_ACTIVIDAD As Actividad, RAC.AREA As Area, COUNT (EMP.codigo_EMpleado) AS Empleados, sum(demp.cantidad*40/100) as CostoEmpleados, co.fecha as DiasTrabajados 
+                                    FROM REGISTRO_ACTIVIDAD RAC     INNER JOIN COSECHA DEMP ON(rac.detalle_empleados = DEMP.CODIGO)  
+                                                                    INNER JOIN EMPLEADO EMP ON(demp.CODIGO = EMP.CODIGO_EMPLEADO) 
+                                                                    INNER JOIN ( 
+                                                                                select area, codigo_actividad,count(fecha) as fecha 
+                                                                                from (select area,codigo_actividad, to_char(fecha_actividad,'dd-MM-yyyy') as fecha 
+                                                                                       from registro_actividad 
+                                                                                       where TRUNC (fecha_actividad) BETWEEN  TO_DATE ($P{fecha1}, 'DD/MM/RR') and TO_DATE ($P{fecha2}, 'DD/MM/RR') 
+                                                                                     ) 
+                                                                                group by area, codigo_actividad 
+                                                                                ) co on(rac.codigo_actividad = co.codigo_actividad and rac.area = co.area) 
+                                    where TRUNC (rac.fecha_actividad) BETWEEN  TO_DATE ($P{fecha1}, 'DD/MM/RR') and TO_DATE ($P{fecha2}, 'DD/MM/RR') 
+                                    AND Rac.codigo_actividad = 117
+                                    group by rac.codigo_actividad, RAC.AREA, co.fecha 
+    UNION ALL
+    SELECT rac.codigo_actividad As Actividad, Rac.AREA As Area, COUNT (EMP.codigo_EMpleado) AS Empleados, sum(emp.salariodia_empleado) as CostoEmpleados, co.fecha as "Dias Trabajados" 
+                                    FROM REGISTRO_ACTIVIDAD RAC     INNER JOIN DETALLE_EMPLEADOS DEMP ON(rac.detalle_empleados = DEMP.CODIGO_DETALLEEMPLEADO) 
+                                                                    INNER JOIN EMPLEADO EMP ON(demp.CODIGO_EMPLEADO = EMP.CODIGO_EMPLEADO) 
+                                                                    INNER JOIN (select area, codigo_actividad,count(fecha) as fecha 
+                                                                                from (select area,codigo_actividad, to_char(fecha_actividad,'dd-MM-yyyy') as fecha 
+                                                                                       from registro_actividad 
+                                                                                       where TRUNC (fecha_actividad) BETWEEN  TO_DATE ($P{fecha1}, 'DD/MM/RR') and TO_DATE ($P{fecha2}, 'DD/MM/RR') 
+                                                                                     ) 
+                                                                                group by area, codigo_actividad 
+                                                                                ) co on(rac.codigo_actividad = co.codigo_actividad and rac.area = co.area) 
+                                    where TRUNC (rac.fecha_actividad) BETWEEN  TO_DATE ($P{fecha1}, 'DD/MM/RR') and TO_DATE ($P{fecha2}, 'DD/MM/RR') 
+                                    group by rac.CODIGO_actividad, RAC.AREA, co.fecha
+) AA INNER JOIN AREA  AR ON(aa.area = ar.codigo_area)
+     INNER JOIN ACTIVIDAD ACT ON(aa.actividad=act.codigo_actividad)
+order by 1]]>
+	</queryString>
+	<field name="Actividad" class="java.lang.String"/>
+	<field name="Area" class="java.lang.String"/>
+	<field name="Jornales" class="java.math.BigDecimal"/>
+	<field name="Costo Empleados" class="java.math.BigDecimal"/>
+	<field name="Dias Trabajados" class="java.math.BigDecimal"/>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="136" splitType="Stretch">
+			<staticText>
+				<reportElement style="Title" x="1" y="0" width="801" height="62" uuid="da4e3d1b-0e55-4282-a9fb-551656c5220c"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle">
+					<font pdfFontName="Times-Roman"/>
+				</textElement>
+				<text><![CDATA[FINCA BELLA VISTA]]></text>
+			</staticText>
+			<image>
+				<reportElement x="659" y="0" width="141" height="76" uuid="c2761c17-ad52-44a1-8edb-43e6409570a6"/>
+				<imageExpression><![CDATA["C:\\Users\\joaqu\\Pictures\\iconos\\FINCA BELLA VISTA\\ICONOS PEQUEÑOS\\Logo Finca 480.png"]]></imageExpression>
+			</image>
+			<staticText>
+				<reportElement x="189" y="70" width="22" height="18" uuid="5d6eaa8f-a7c8-4dfc-97b1-b170095e7118"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[De:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="388" y="70" width="22" height="18" uuid="2ec90044-ccbd-4722-bc29-5880c960b410"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<text><![CDATA[Al:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="220" y="70" width="100" height="20" uuid="d47d7f0f-bef3-4233-a1ce-078d038e5bf2"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$P{fecha1}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="423" y="70" width="100" height="20" uuid="83cf19d9-ff4c-49a3-bfd5-9b71caad6d4e"/>
+				<textElement textAlignment="Center" verticalAlignment="Middle"/>
+				<textFieldExpression><![CDATA[$P{fecha2}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<pageHeader>
+		<band splitType="Stretch"/>
+	</pageHeader>
+	<columnHeader>
+		<band height="16" splitType="Stretch">
+			<line>
+				<reportElement positionType="FixRelativeToBottom" x="0" y="15" width="802" height="1" uuid="813eb006-c9bb-4fce-9f87-c7dfde272439"/>
+				<graphicElement>
+					<pen lineWidth="0.5" lineColor="#999999"/>
+				</graphicElement>
+			</line>
+			<staticText>
+				<reportElement style="Column header" x="0" y="0" width="160" height="15" forecolor="#000000" uuid="42e5fecf-588d-49b3-9cc9-e4c6f012f584"/>
+				<text><![CDATA[Actividad]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column header" x="160" y="0" width="160" height="15" forecolor="#000000" uuid="796bdf46-712a-468a-9ae0-975054a0c245"/>
+				<text><![CDATA[Area]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column header" x="320" y="0" width="160" height="15" forecolor="#000000" uuid="0c60d206-4dc0-465e-accb-2464309954e3"/>
+				<text><![CDATA[Empleados]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column header" x="480" y="0" width="160" height="15" forecolor="#000000" uuid="b7a3ff45-f148-43c7-ab9e-3c491601ae1b"/>
+				<text><![CDATA[Costo Empleados]]></text>
+			</staticText>
+			<staticText>
+				<reportElement style="Column header" x="640" y="0" width="160" height="15" forecolor="#000000" uuid="b1ead1b6-e669-4223-8729-7ac396edfc0f"/>
+				<text><![CDATA[Dias Trabajados]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="15" splitType="Stretch">
+			<frame>
+				<reportElement style="Row" mode="Opaque" x="0" y="0" width="802" height="15" uuid="8d13c72b-e370-4512-aec2-00eb3ea476d2"/>
+				<textField isStretchWithOverflow="true">
+					<reportElement style="Detail" x="0" y="0" width="160" height="15" uuid="4dfca0ed-52b4-4651-8aec-c2c3093b11ab"/>
+					<textFieldExpression><![CDATA[$F{Actividad}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement style="Detail" x="160" y="0" width="160" height="15" uuid="44470f1b-0bf2-407d-b9a4-bf338a2d28eb"/>
+					<textFieldExpression><![CDATA[$F{Area}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement style="Detail" x="320" y="0" width="160" height="15" uuid="1344334c-7797-4f18-a01a-9a15d0399eea"/>
+					<textFieldExpression><![CDATA[$F{Empleados}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement style="Detail" x="480" y="0" width="160" height="15" uuid="5e3a0f01-152c-480d-ad6c-350d67ef5463"/>
+					<textFieldExpression><![CDATA[$F{Costo Empleados}]]></textFieldExpression>
+				</textField>
+				<textField isStretchWithOverflow="true">
+					<reportElement style="Detail" x="640" y="0" width="160" height="15" uuid="147db88e-5f14-48c2-949b-1fdf00b7eca8"/>
+					<textFieldExpression><![CDATA[$F{Dias Trabajados}]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="6" splitType="Stretch">
+			<line>
+				<reportElement positionType="FixRelativeToBottom" x="0" y="3" width="802" height="1" uuid="1f7a5e1e-7e16-459a-a05d-e433fed4deb2"/>
+				<graphicElement>
+					<pen lineWidth="0.5" lineColor="#999999"/>
+				</graphicElement>
+			</line>
+		</band>
+	</columnFooter>
+	<pageFooter>
+		<band height="25" splitType="Stretch">
+			<frame>
+				<reportElement mode="Opaque" x="-21" y="1" width="843" height="24" forecolor="#5FC579" backcolor="#5FC579" uuid="3d1fd97d-f248-4c6f-9377-803f78771733"/>
+				<textField evaluationTime="Report">
+					<reportElement style="Column header" x="783" y="1" width="40" height="20" forecolor="#000000" uuid="307fefd8-bfd1-4413-9f75-bdaab7461356"/>
+					<textElement verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[" " + $V{PAGE_NUMBER}]]></textFieldExpression>
+				</textField>
+				<textField>
+					<reportElement style="Column header" x="703" y="1" width="80" height="20" forecolor="#000000" uuid="98cb6bc2-9730-44fa-b74d-8ea06cb80d3e"/>
+					<textElement textAlignment="Right" verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA["Paginas "+$V{PAGE_NUMBER}+" de"]]></textFieldExpression>
+				</textField>
+				<textField pattern="EEEEE dd MMMMM yyyy">
+					<reportElement style="Column header" x="22" y="1" width="197" height="20" forecolor="#000000" uuid="ca4f5a98-1f8b-4665-aa08-e6a03ecb7156"/>
+					<textElement verticalAlignment="Middle">
+						<font size="10" isBold="false"/>
+					</textElement>
+					<textFieldExpression><![CDATA[new java.util.Date()]]></textFieldExpression>
+				</textField>
+			</frame>
+		</band>
+	</pageFooter>
+	<summary>
+		<band splitType="Stretch"/>
+	</summary>
+</jasperReport>
