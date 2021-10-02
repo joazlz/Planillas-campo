@@ -23,7 +23,7 @@ import org.jdesktop.swingx.autocomplete.AutoCompleteDecorator;
 public class EMPLEADO extends javax.swing.JFrame {
 
     // <editor-fold defaultstate="collapsed" desc="Variables"> 
-    String ruta = null;
+    String ruta = NULL;
     SQLEMPLEADO Empleado = new SQLEMPLEADO(this);
     private final ConexionBD conectar = new ConexionBD();
     private Connection cn = conectar.getConnection();
